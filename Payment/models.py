@@ -11,4 +11,3 @@ class OrderItem(models.Model):
 
 class Payment(models.Model):
     pass
-# Create your models here.

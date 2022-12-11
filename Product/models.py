@@ -16,6 +16,9 @@ class Product(models.Model):
     avatar = models.ImageField(upload_to="")  # TODO add upload to path
     description = models.TextField()
     stock = models.PositiveIntegerField()
+
+    created_time = models.DateTimeField(auto_now_add=True)
+    updated_time = models.DateTimeField(auto_now=True)
     is_valid = models.BooleanField(default=True)
 
 

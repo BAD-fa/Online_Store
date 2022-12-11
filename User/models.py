@@ -1,5 +1,6 @@
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser, UserManager
+from django.core.validators import RegexValidator
 from django.db import models
 
 
@@ -32,13 +33,14 @@ class UserMangerCustom(UserManager):
 
 # Implement AbstractUser Here
 class User(AbstractUser):
-    email = models.EmailField(unique=True, null=True)
-    phone_number = models.CharField(max_length=11, null=True, unique=True)
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    avatar = models.ImageField(upload_to='users/avatars/', blank=True, null=True)
+    phone_number = models.PositiveBigIntegerField(unique=True, null=True, blank=True,
+                                                  validators=[RegexValidator
+                                                              (r'^989[0-3,9]\d{8}$', 'Enter a valid phone number.',
+                                                               'invalid')])
 
-    # TODO Implement Manager
-    # objects = CustomUserManager()
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'phone_number']
 
 
 class Customer(User):
@@ -55,7 +57,10 @@ class Profile(models.Model):
 
 
 class Address(models.Model):
-    address = models.TextField()
-    postal_code = models.CharField(max_length=10)
-    geographical_location = models.CharField(max_length=50)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    receiver_name = models.CharField(max_length=31)
+    receiver_phone_number = models.PositiveBigIntegerField()
+    province = models.CharField(max_length=31)
+    city = models.CharField(max_length=63)
+    description = models.TextField()
+    postalcode = models.PositiveBigIntegerField()

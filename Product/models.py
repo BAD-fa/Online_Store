@@ -24,18 +24,15 @@ class Product(models.Model):
 
 class Comment(models.Model):
     body = models.TextField()
+    date = models.DateField(auto_now_add=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="comments")  # TODO rename related name
-# TODO add Log
 
 
+# Cart and Cart Item fields must be similar to Order and Order item
 class Cart(models.Model):
     pass
 
 
 class CartItem(models.Model):
-    pass
-
-
-class ProductAttribute(models.Model):
     pass

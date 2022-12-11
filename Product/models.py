@@ -20,17 +20,31 @@ class Product(models.Model):
     is_valid = models.BooleanField(default=True)
 
 
-class Comment(models.Model):
+class AbstractComment(models.Model):
+    CREATED = 10
+    APPROVED = 20
+    REJECTED = 30
+    DELETED = 40
+
+    COMMENT_CHOICE = (
+        (CREATED, 'Created'),
+        (APPROVED, 'Approved'),
+        (REJECTED, 'Rejected'),
+        (DELETED, 'Deleted')
+    )
+
+    parent_comment = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='none')
+    # TODO related_name
     body = models.TextField()
-    date = models.DateField(auto_now_add=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="comments")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
-                             related_name="comments")  # TODO rename related name
+    status = models.PositiveSmallIntegerField(choices=COMMENT_CHOICE, default=CREATED, blank=False)
+    validated_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    # TODO related_name
+    created_time = models.DateTimeField(auto_now_add=True)
+    modified_time = models.DateTimeField(auto_now=True)
 
-
-# Cart and Cart Item fields must be similar to Order and Order item
-class Cart(models.Model):
-    pass
+    class Meta:
+        abstract = False  # TODO turn True while production
 
 
 class CartItem(models.Model):

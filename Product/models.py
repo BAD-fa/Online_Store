@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 from Online_Store import settings
 from User.models import User
@@ -33,8 +34,24 @@ class Comment(models.Model):
 
 # Cart and Cart Item fields must be similar to Order and Order item
 class Cart(models.Model):
-    pass
+    class CartStatus(models.TextChoices):
+        OPEN = "OPEN"
+        CLOSED = "CLOSED"
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user")
+    product = models.ManyToManyField(Product, related_name='cart')
+    status = models.CharField(max_length=6, choices=CartStatus.choices, default=CartStatus.CLOSED)
+    total_price = models.PositiveBigIntegerField(default=0)
+    discount = models.PositiveBigIntegerField(default=0)
+    is_valid = models.BooleanField(default=True)
+    created_time = models.DateTimeField(auto_now_add=True)
+    modified_time = models.DateTimeField(auto_now=True)
 
 
 class CartItem(models.Model):
-    pass
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="cart_item")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="product")
+    expire_time = models.DateTimeField(default=timezone.now() + timezone.timedelta(hours=1))
+    count = models.PositiveSmallIntegerField(default=0)
+    created_time = models.DateTimeField(auto_now_add=True)
+    modified_time = models.DateTimeField(auto_now=True)

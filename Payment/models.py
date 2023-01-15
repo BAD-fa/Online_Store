@@ -59,6 +59,13 @@ class OrderItem(models.Model):
     def get_price(self):
         return self.product.price * self.count
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        product = self.product
+        if product.stock < self.count:
+            raise ValueError(f'product does not exist')
+        product.save()
+        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+
 
 class OrderSend(models.Model):
     NORMAL_POST = 1

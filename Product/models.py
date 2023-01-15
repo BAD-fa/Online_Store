@@ -6,9 +6,12 @@ from User.models import User
 
 class Category(models.Model):
     title = models.CharField(max_length=63)
-    parent_category = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="sub_category", null=True)
+    parent_category = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="sub_category",
+                                        null=True, blank=True)
     is_valid = models.BooleanField(default=True)
 
+    def __str__(self):
+        return self.title
 
 class Product(models.Model):
     name = models.CharField(max_length=255)

@@ -36,14 +36,33 @@ class Order(models.Model):
         verbose_name = 'order'
         verbose_name_plural = 'orders'
 
+    def check_items_available(self):
+        items = self.order_items.all()
+        for item in items:
+            if not item.is_available():
+                item.count = 0
+                item.is_valid = False
+
+        items.bulk_update(items, ['count', 'is_valid'])
+
     def update_price(self):
+        self.check_items_available()
         total_price = 0
-        order_items = self.order_itme.all()
+        order_items = self.order_itmes.all()
         for item in order_items:
             total_price += item.get_price()
 
+    def check_order(self):
+        self.save()
+
+    def save(self, *args, **kwargs):
+        self.check_items_available()
+        self.update_price()
+        super(Order, self).save(*args, **kwargs)
+
 
 class OrderItem(models.Model):
+    is_valid = models.BooleanField(default=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="order_items")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="order_items")
     expire_time = models.DateTimeField(default=timezone.now() + timezone.timedelta(hours=1))
@@ -59,11 +78,17 @@ class OrderItem(models.Model):
     def get_price(self):
         return self.product.price * self.count
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def is_available(self):
         product = self.product
         if product.stock < self.count:
-            raise ValueError(f'product does not exist')
-        product.save()
+            return False
+        return True
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if not self.is_available():
+            self.is_valid = False
+        else:
+            self.is_valid = True
         super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
 

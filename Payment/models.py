@@ -15,7 +15,6 @@ class Order(models.Model):
     STATUS_SEND_SHIPMENT = 4
     STATUS_DELIVERED_SHIPMENT = 5
     STATUS_RETURNED = 6
-    user = models.ForeignKey(User, models.CASCADE, 'orders')
     ORDER_STATUS = ((STATUS_WAIT_FOR_PAYMENT, _('wait for payment')), (STATUS_FAILED_PAYMENT, _('failed payment')),
                     (STATUS_PREPARING_TO_SEND, _('preparing to send')), (STATUS_SEND_SHIPMENT, _('send shipment')),
                     (STATUS_DELIVERED_SHIPMENT, _('delivered shipment')))
@@ -24,7 +23,10 @@ class Order(models.Model):
     PAYMENT_CASH = 2
     PAYMENT_CREDIT = 3
     PAYMENT_TYPE = ((PAYMENT_ONLINE, _('online')), (PAYMENT_CASH, _('cash')), (PAYMENT_CREDIT, _('credit')))
-    status = models.PositiveIntegerField(verbose_name=_('status'), default=1)
+
+    # fields
+    user = models.ForeignKey(User, models.CASCADE, 'orders')
+    status = models.PositiveIntegerField(verbose_name=_('status'), default=1, choices=ORDER_STATUS)
     tracking_code = models.PositiveIntegerField(verbose_name=_('tracking code'), auto_created=True, unique=True)
     orders_price = models.PositiveBigIntegerField(verbose_name=_('order price'), default=0)
     payment_type = models.PositiveSmallIntegerField(verbose_name=_('payment type'), choices=PAYMENT_TYPE, default=1)
@@ -38,27 +40,27 @@ class Order(models.Model):
 
     def check_items_available(self):
         items = self.order_items.all()
-        for item in items:
-            if not item.is_available():
-                item.count = 0
-                item.is_valid = False
+        if items:
+            for item in items:
+                if not item.is_available():
+                    item.count = 0
+                    item.is_valid = False
 
-        items.bulk_update(items, ['count', 'is_valid'])
+            items.bulk_update(items, ['count', 'is_valid'])
 
     def update_price(self):
         self.check_items_available()
         total_price = 0
         order_items = self.order_itmes.all()
-        for item in order_items:
-            total_price += item.get_price()
+        if order_items:
+            for item in order_items:
+                total_price += item.get_price()
 
     def check_order(self):
-        self.save()
-
-    def save(self, *args, **kwargs):
-        self.check_items_available()
-        self.update_price()
-        super(Order, self).save(*args, **kwargs)
+        if self.order_itmes.all():
+            self.check_items_available()
+            self.update_price()
+            self.save()
 
 
 class OrderItem(models.Model):
@@ -83,13 +85,6 @@ class OrderItem(models.Model):
         if product.stock < self.count:
             return False
         return True
-
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        if not self.is_available():
-            self.is_valid = False
-        else:
-            self.is_valid = True
-        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
 
 class OrderSend(models.Model):

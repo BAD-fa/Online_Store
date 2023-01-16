@@ -17,10 +17,13 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     price = models.PositiveBigIntegerField()
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name="products")
-    avatar = models.ImageField(upload_to="")  # TODO add upload to path
-    description = models.TextField()
+    avatar = models.ImageField(upload_to="", blank=True, null=True)  # TODO add upload to path
+    description = models.TextField(blank=True, null=True)
     stock = models.PositiveIntegerField()
     is_valid = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Comment(models.Model):

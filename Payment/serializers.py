@@ -10,26 +10,30 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['status', 'tracking_code', 'orders_price', 'payment_type', 'created_time',
+        fields = ['user', 'status', 'tracking_code', 'orders_price', 'payment_type', 'created_time',
                   'modified_time']
 
     def get_status(self, obj):
         return obj.get_status_display()
 
     def get_payment_type(self, obj):
-        return obj.get_payment_type_diplay()
+        return obj.get_payment_type_display()
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
     order = OrderSerializer(write_only=True)
+    price = serializers.SerializerMethodField()
 
     # product = ProductSerializer()
 
     class Meta:
         model = OrderItem()
-        fields = ['order', 'product', 'expire_time', 'count', 'created_time', 'modified_time']
+        fields = ['order', 'product', 'expire_time', 'count', 'price', 'created_time', 'modified_time']
         # extra_kwargs = {
         #     'order': {'write_only': True}}
+
+    def get_price(self, obj):
+        return obj.get_price()
 
     def validate(self, data):
         if data['count'] > data['product'].stock:
@@ -55,7 +59,7 @@ class OrderViewSerializer(OrderSerializer):
 
     class Meta:
         model = Order
-        fields = ['status', 'tracking_code', 'orders_price', 'get_payment_type_display()', 'created_time',
+        fields = ['user', 'status', 'tracking_code', 'orders_price', 'payment_type', 'created_time',
                   'modified_time', 'order_items']
 
 
@@ -65,5 +69,5 @@ class OrderAllDetailSerializer(OrderSerializer):
 
     class Meta:
         model = Order
-        fields = ['status', 'tracking_code', 'orders_price', 'get_payment_type_display()', 'created_time',
+        fields = ['status', 'tracking_code', 'orders_price', 'payment_type', 'created_time',
                   'modified_time', 'order_items', 'order_send']

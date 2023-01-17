@@ -69,7 +69,7 @@ class OrderSend(models.Model):
     POST_TYPE = ((NORMAL_POST, _('normal')), (FAST_POST, _('fast')))
 
     order = models.OneToOneField(Order, models.CASCADE, related_name='order_send')
-    post_type = models.PositiveSmallIntegerField(verbose_name=_('post type'), default=1)
+    post_type = models.PositiveSmallIntegerField(verbose_name=_('post type'), default=1, choices=POST_TYPE)
     recipient_first_name = models.CharField(verbose_name=_('recipient first name'), max_length=64)
     recipient_last_name = models.CharField(verbose_name=_('recipient last name'), max_length=64)
     recipient_phone_number = models.PositiveBigIntegerField(verbose_name=_('recipient phone number'),

@@ -5,7 +5,6 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from User.models import User
 from Product.models import Product
-from .utils import order_items, orders
 
 
 # Cart and Cart Item fields must be similar to Order and Order item
@@ -38,20 +37,6 @@ class Order(models.Model):
         db_table = 'order'
         verbose_name = 'order'
         verbose_name_plural = 'orders'
-
-    # def update_price(self):
-    #     self.check_items_available()
-    #     total_price = 0
-    #     order_items = self.order_itmes.all()
-    #     if order_items:
-    #         for item in order_items:
-    #             total_price += item.get_price()
-    #
-    # def check_order(self):
-    #     if self.order_itmes.all():
-    #         self.check_items_available()
-    #         self.update_price()
-    #         self.save()
 
 
 class OrderItem(models.Model):
@@ -102,7 +87,6 @@ class OrderSend(models.Model):
         db_table = 'order_ send'
         verbose_name = 'order send'
         verbose_name_plural = 'order sends'
-
 
 
 class Payment(models.Model):

@@ -7,6 +7,36 @@ from .serializers import *
 
 BASE_DIR = 'http://127.0.0.1:8000/'
 
+# Search Related APIView------------------------------------------------------------------------------------------------
+
+class SearchAPIview(GenericAPIView):
+    @staticmethod
+    def get(request):
+        try:
+            search = request.data['search']
+        except KeyError:
+            return Response('search field is required.')
+
+        products = Product.objects.filter(name__contains=search)
+
+        result = {}
+
+        for product in products:
+            avatar = product.avatar
+            if not avatar:
+                avatar = 'No Image'
+
+            result[f'{product}'] = {
+                'avatar': avatar,
+                'price': product.price,
+                'rate': 'None'
+            }
+            # TODO Update 'Product rate'
+
+        result['products'] = BASE_DIR + 'products/detail/'
+        return Response(result)
+
+
 # Category Related APIView----------------------------------------------------------------------------------------------
 class CategoryAPIView(GenericAPIView):
 
@@ -126,6 +156,7 @@ class HomePage(GenericAPIView):
     @staticmethod
     def get(request):
         result = {
+            'search': BASE_DIR + 'search/',
             'categories': BASE_DIR + 'categories/'
         }
         # TODO Add 'Profile' Related API

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Order, OrderSend, OrderItem
+from .models import Order, OrderSend, OrderItem, Gateway, Payment
 from User.serializers import UserSerializer
 
 
@@ -84,3 +84,15 @@ class OrderAllDetailSerializer(OrderSerializer):
         model = Order
         fields = ['user', 'status', 'tracking_code', 'orders_price', 'payment_type', 'created_time',
                   'modified_time', 'order_items', 'order_send']
+
+
+class GetewaySerialzier(serializers.ModelSerializer):
+    class Meta:
+        model = Gateway
+        field = '__all__'
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gateway
+        field = '__all__'

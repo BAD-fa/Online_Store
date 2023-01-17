@@ -34,7 +34,7 @@ class UserMangerCustom(UserManager):
 class User(AbstractUser):
     email = models.EmailField(unique=True, null=True)
     phone_number = models.CharField(max_length=11, null=True, unique=True)
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
 
     # TODO Implement Manager
@@ -49,13 +49,19 @@ class Manager(User):
     pass
 
 
+class Address(models.Model):
+    province = models.CharField(max_length=20)
+    city = models.CharField(max_length=20)
+    address_detail = models.TextField()
+    postal_code = models.CharField(max_length=10)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    receiver_name = models.CharField(max_length=31)
+    receiver_phone_number = models.PositiveBigIntegerField()
+    created_time = models.DateTimeField(auto_now_add=True)
+    modified_time = models.DateTimeField(auto_now=True)
+    is_valid = models.BooleanField(default=True)
+
+
 # Credentials
 class Profile(models.Model):
-    pass
-
-
-class Address(models.Model):
-    address = models.TextField()
-    postal_code = models.CharField(max_length=10)
-    geographical_location = models.CharField(max_length=50)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, related_name='customer_profile', on_delete=models.CASCADE)

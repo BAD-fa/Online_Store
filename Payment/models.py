@@ -32,6 +32,7 @@ class Order(models.Model):
     payment_type = models.PositiveSmallIntegerField(verbose_name=_('payment type'), choices=PAYMENT_TYPE, default=1)
     created_time = models.DateTimeField(verbose_name=_('created time'), auto_now_add=True)
     modified_time = models.DateTimeField(verbose_name=_('modified time'), auto_now=True)
+    is_paid = models.BooleanField(verbose_name=_('is paid'), default=False)
 
     class Meta:
         db_table = 'order'

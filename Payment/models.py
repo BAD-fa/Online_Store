@@ -39,8 +39,6 @@ class Order(models.Model):
         verbose_name = 'order'
         verbose_name_plural = 'orders'
 
-
-
     # def update_price(self):
     #     self.check_items_available()
     #     total_price = 0
@@ -106,8 +104,6 @@ class OrderSend(models.Model):
         verbose_name_plural = 'order sends'
 
 
+
 class Payment(models.Model):
     pass
-    # phone_number = models.PositiveBigIntegerField(unique=True, validators=[
-    #         RegexValidator(r'^989[0-3,9]\d{8}$', 'Enter a valid phone number.', 'invalid')
-    # ])

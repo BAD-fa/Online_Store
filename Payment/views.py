@@ -28,9 +28,15 @@ class OrderView(viewsets.ModelViewSet):
 
 class CheckoutView(mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
-    queryset = OrderSend.objects.all()
+    queryset = OrderSend.objects.all().select_related('order')
     permission_classes = [IsAuthenticated]
     parser_classes = (FormParser, JSONParser)
+
+    def get_object(self):
+        obj = super(CheckoutView, self).get_object()
+        if obj.order.status < 2:
+            obj.order = orders.check_order(obj.order)
+        return obj
 
     def get_serializer_class(self):
         if self.action == 'create':

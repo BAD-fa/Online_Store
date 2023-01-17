@@ -1,4 +1,3 @@
-from django.http import JsonResponse
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
@@ -6,9 +5,10 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .serializers import *
 
+BASE_DIR = 'http://127.0.0.1:8000/'
 
 # Category Related APIView----------------------------------------------------------------------------------------------
-class ProductCategoryAPIView(GenericAPIView):
+class CategoryAPIView(GenericAPIView):
 
     @staticmethod
     def get(request):
@@ -19,11 +19,18 @@ class ProductCategoryAPIView(GenericAPIView):
             if not category.parent_category:
                 result[f'{category.pk}'] = category.title
 
+        result['subcategories'] = BASE_DIR + 'categories/subcategories/'
         return Response(result)
 
+
+class SubCategoryAPIView(GenericAPIView):
     @staticmethod
-    def post(request):
-        user_choice = request.data['category']
+    def get(request):
+        try:
+            user_choice = request.data['category']
+        except KeyError:
+            return Response('category field is required.')
+
         all_categories = Category.objects.all()
         target_categories = all_categories.filter(title__contains=user_choice)
 
@@ -34,10 +41,10 @@ class ProductCategoryAPIView(GenericAPIView):
             category_info = {}
             for sub_cat in sub_categories:
                 category_info[f'{sub_cat.pk}'] = sub_cat.title
-                # TODO Add 'Product list' Related API
 
             result[f'{category}'] = category_info
 
+        result['products'] = BASE_DIR + 'products/'
         return Response(result)
 
 
@@ -50,9 +57,9 @@ class ProductListAPIView(GenericAPIView):
             target_category = request.data['category']
             category = Category.objects.get(title=target_category)
         except KeyError:
-            return Response('category title field is required.')
+            return Response('category field is required.')
         except ObjectDoesNotExist:
-            return Response('category title does not exist.')
+            return Response('category does not exist.')
 
         products = category.products.all()
 
@@ -69,11 +76,11 @@ class ProductListAPIView(GenericAPIView):
                 'price': product.price,
                 'rate': 'None'
             }
-            # TODO Add 'product detail link'
             # TODO Update 'Product rate'
 
         result[f'{category}'] = product_info
 
+        result['products'] = BASE_DIR + 'products/detail/'
         return Response(result)
 
 
@@ -85,9 +92,9 @@ class ProductDetailAPIView(GenericAPIView):
             target_product = request.data['product']
             product = Product.objects.get(name=target_product)
         except KeyError:
-            return Response('product title field is required.')
+            return Response('product field is required.')
         except ObjectDoesNotExist:
-            return Response('product title does not exist.')
+            return Response('product does not exist.')
 
         result = {}
 
@@ -116,9 +123,14 @@ class ProductDetailAPIView(GenericAPIView):
 
 # HomePage APIView------------------------------------------------------------------------------------------------------
 class HomePage(GenericAPIView):
-    # TODO Add 'Profile' Related API
-    # TODO Add 'LOGIN/Register - Logout' Related API
-    # TODO Add 'Category List' Related API
-    # TODO Add 'Top Rated Products(10)'
-    # TODO Add 'Search' Related API
-    pass
+    @staticmethod
+    def get(request):
+        result = {
+            'categories': BASE_DIR + 'categories/'
+        }
+        # TODO Add 'Profile' Related API
+        # TODO Add 'LOGIN/Register - Logout' Related API
+        # TODO Add 'Category List' Related API
+        # TODO Add 'Top Rated Products(10)'
+        # TODO Add 'Search' Related API
+        return Response(result)

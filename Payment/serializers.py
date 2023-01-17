@@ -4,13 +4,12 @@ from User.serializers import UserSerializer
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    user = UserSerializer(write_only=True)
     status = serializers.SerializerMethodField(read_only=True, default=1)
     payment_type = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ['user', 'status', 'tracking_code', 'orders_price', 'payment_type', 'created_time',
+        fields = ['status', 'tracking_code', 'orders_price', 'payment_type', 'created_time',
                   'modified_time']
 
     def get_status(self, obj):
@@ -18,6 +17,10 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_payment_type(self, obj):
         return obj.get_payment_type_display()
+
+    def create(self, validated_data):
+        user = self.data['request'].user
+        Order.objects.create(user=user, **validated_data)
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -54,20 +57,30 @@ class OrderSendSerializer(serializers.ModelSerializer):
         return obj.get_post_type_display()
 
 
+class OrderSendCreateSerializer(serializers.ModelSerializer):
+    order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
+
+    class Meta:
+        model = OrderSend
+        fields = ['order', 'post_type', 'recipient_first_name', 'recipient_last_name', 'recipient_phone_number',
+                  'address', 'send_cost', 'tracking_code']
+
+
 class OrderViewSerializer(OrderSerializer):
     order_items = OrderItemSerializer(many=True)
 
     class Meta:
         model = Order
-        fields = ['user', 'status', 'tracking_code', 'orders_price', 'payment_type', 'created_time',
+        fields = ['status', 'tracking_code', 'orders_price', 'payment_type', 'created_time',
                   'modified_time', 'order_items']
 
 
 class OrderAllDetailSerializer(OrderSerializer):
     order_send = OrderSendSerializer()
     order_items = OrderItemSerializer(many=True)
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Order
-        fields = ['status', 'tracking_code', 'orders_price', 'payment_type', 'created_time',
+        fields = ['user', 'status', 'tracking_code', 'orders_price', 'payment_type', 'created_time',
                   'modified_time', 'order_items', 'order_send']

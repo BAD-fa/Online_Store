@@ -1,6 +1,5 @@
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Sum
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from User.models import User
@@ -90,5 +89,30 @@ class OrderSend(models.Model):
         verbose_name_plural = 'order sends'
 
 
+class Gateway(models.Model):
+    code = models.PositiveIntegerField(primary_key=True, auto_created=True)
+    order_id = models.CharField(verbose_name=_('order_id'), max_length=50)
+    amount = models.IntegerField(verbose_name=_('amount'),
+                                 validators=[MaxValueValidator(500000000), MinValueValidator(1000)])
+    user = models.ForeignKey(User, models.CASCADE, related_name='getway', verbose_name=_('user'),
+                             null=True, blank=True)
+    order = models.ForeignKey(Order, models.CASCADE, related_name='getway', verbose_name=_('order'))
+    call_back = models.CharField(verbose_name=_('call_back'), max_length=2048)
+    id = models.CharField(verbose_name=_('payment_id'), blank=True, null=True)
+    payment_link = models.CharField(verbose_name=_('payment_link'), blank=True, null=True, max_length=2048)
+    created_time = models.DateTimeField(verbose_name=_('created time'), auto_now_add=True)
+    updated_time = models.DateTimeField(verbose_name=_('updated time'), auto_now=True)
+
+
 class Payment(models.Model):
-    pass
+    code = models.PositiveIntegerField(primary_key=True, auto_created=True)
+    order = models.ForeignKey(Order)
+    status = models.PositiveIntegerField(verbose_name=_('status'), default=1)
+    track_id = models.PositiveIntegerField(verbose_name=_('track_id'), null=True, blank=True)
+    payment_id = models.CharField(verbose_name=_('payment_id'), blank=True, null=True, unique=True)
+    order_id = models.CharField(verbose_name=_('order_id'), max_length=50)
+    amount = models.IntegerField(verbose_name=_('amount'),
+                                 validators=[MaxValueValidator(500000000), MinValueValidator(1000)])
+    card_no = models.CharField(verbose_name=_('card_no'), max_length=32)
+    hashed_card_no = models.CharField(verbose_name=_('hashed_card_no'), max_length=2048)
+    data = models.DateTimeField(verbose_name=_('date'), blank=True, null=True)

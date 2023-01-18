@@ -86,7 +86,7 @@ class OrderAllDetailSerializer(OrderSerializer):
                   'modified_time', 'order_items', 'order_send']
 
 
-class GetewaySerialzier(serializers.ModelSerializer):
+class GatewaySerialzier(serializers.ModelSerializer):
     class Meta:
         model = Gateway
         field = '__all__'

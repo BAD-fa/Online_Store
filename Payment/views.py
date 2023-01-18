@@ -1,10 +1,11 @@
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpRequest
 from rest_framework.decorators import action
 from rest_framework import viewsets, status, mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Order, OrderSend
-from .serializers import OrderAllDetailSerializer, OrderViewSerializer, OrderSendSerializer, OrderSendCreateSerializer
+from rest_framework.request import Request
+from .models import Order, OrderSend, Gateway, Payment
+from .serializers import (OrderViewSerializer, OrderSendCreateSerializer, GatewaySerialzier, PaymentSerializer)
 from .utils import orders, order_items
 from rest_framework.parsers import FormParser, JSONParser
 
@@ -31,6 +32,7 @@ class CheckoutView(mixins.CreateModelMixin,
     queryset = OrderSend.objects.all().select_related('order')
     permission_classes = [IsAuthenticated]
     parser_classes = (FormParser, JSONParser)
+    serializer_class = OrderSendCreateSerializer
 
     def get_object(self):
         obj = super(CheckoutView, self).get_object()
@@ -38,8 +40,34 @@ class CheckoutView(mixins.CreateModelMixin,
             obj.order = orders.check_order(obj.order)
         return obj
 
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return OrderSendCreateSerializer
-        else:
-            return OrderSendSerializer
+
+class Payment(viewsets.ViewSet):
+
+    @action(methods='get', detail=True, url_name='payments/order/<int:pk>/gateway/')
+    def connect_to_gateway(self, request, pk=None):
+        try:
+            order = Order.objects.prefetch_related('order_items').get(pk=pk).select_related('order_send')
+        except Order.DoesNotExist:
+            return Response({"detail": 'order does not exist'}, status.HTTP_400_BAD_REQUEST)
+        order = orders.check_order(order)
+        order.order_items.filter(is_valid=False).delete()
+        order_send = order.order_send
+        total_price = order.orders_price + order_send.send_cost
+        try:
+            connection = Gateway.objects.get(user=request.user, order_id=str(order.id), amount=total_price)
+        except Gateway.DoesNotExist:
+            Gateway.objects.filter(order_id=str(order.id)).delete()
+            connection = Gateway.objects.create(user=request.user, order_id=str(order.id),
+                                                amount=total_price,
+                                                callbacl=f'domain/payments/order/{pk}/gateway/')
+        serializer = GatewaySerialzier(instance=connection)
+        response = Request()
+
+    @action(methods='post', detail=True, url_name='payments/order/<int:pk>/gateway/')
+    def send_user_to_gateway(self, request, pk=None):
+        try:
+            order = Order.objects.prefetch_related('order_items').get(pk=pk).select_related('order_send')
+        except Order.DoesNotExist:
+            return Response({"detail": 'order does not exist'}, status.HTTP_400_BAD_REQUEST)
+
+

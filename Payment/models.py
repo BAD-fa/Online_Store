@@ -96,9 +96,10 @@ class Gateway(models.Model):
                                  validators=[MaxValueValidator(500000000), MinValueValidator(1000)])
     user = models.ForeignKey(User, models.CASCADE, related_name='getway', verbose_name=_('user'),
                              null=True, blank=True)
-    order = models.ForeignKey(Order, models.CASCADE, related_name='getway', verbose_name=_('order'))
+    order_object = models.ForeignKey(Order, models.SET_NULL, related_name='gateway',
+                                     verbose_name=_('order object'), null=True, blank=True)
     call_back = models.CharField(verbose_name=_('call_back'), max_length=2048)
-    id = models.CharField(verbose_name=_('payment_id'), blank=True, null=True)
+    id = models.CharField(verbose_name=_('payment_id'), max_length=64, blank=True, null=True)
     payment_link = models.CharField(verbose_name=_('payment_link'), blank=True, null=True, max_length=2048)
     created_time = models.DateTimeField(verbose_name=_('created time'), auto_now_add=True)
     updated_time = models.DateTimeField(verbose_name=_('updated time'), auto_now=True)
@@ -106,10 +107,11 @@ class Gateway(models.Model):
 
 class Payment(models.Model):
     code = models.PositiveIntegerField(primary_key=True, auto_created=True)
-    order = models.ForeignKey(Order)
+    order_object = models.ForeignKey(Order, models.SET_NULL, related_name='payments',
+                                     verbose_name=_('order object'), null=True, blank=True)
     status = models.PositiveIntegerField(verbose_name=_('status'), default=1)
     track_id = models.PositiveIntegerField(verbose_name=_('track_id'), null=True, blank=True)
-    payment_id = models.CharField(verbose_name=_('payment_id'), blank=True, null=True, unique=True)
+    id = models.CharField(verbose_name=_('payment_id'), unique=True, max_length=64)
     order_id = models.CharField(verbose_name=_('order_id'), max_length=50)
     amount = models.IntegerField(verbose_name=_('amount'),
                                  validators=[MaxValueValidator(500000000), MinValueValidator(1000)])

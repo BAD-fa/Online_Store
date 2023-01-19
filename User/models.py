@@ -42,7 +42,8 @@ class User(AbstractUser):
 
 
 class Customer(User):
-    pass
+    national_id = models.PositiveBigIntegerField(max_length=10, null=True)
+    birthday = models.DateField(null=True, blank=True)
 
 
 class Manager(User):
@@ -55,8 +56,8 @@ class Address(models.Model):
     address_detail = models.TextField()
     postal_code = models.CharField(max_length=10)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    receiver_name = models.CharField(max_length=31)
-    receiver_phone_number = models.CharField(max_length=16)
+    receiver_name = models.CharField(max_length=31, null=True)
+    receiver_phone_number = models.CharField(max_length=16, null=True)
     created_time = models.DateTimeField(auto_now_add=True)
     modified_time = models.DateTimeField(auto_now=True)
     is_valid = models.BooleanField(default=True)

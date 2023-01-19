@@ -56,7 +56,7 @@ class Address(models.Model):
     postal_code = models.CharField(max_length=10)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     receiver_name = models.CharField(max_length=31)
-    receiver_phone_number = models.PositiveBigIntegerField()
+    receiver_phone_number = models.CharField(max_length=16)
     created_time = models.DateTimeField(auto_now_add=True)
     modified_time = models.DateTimeField(auto_now=True)
     is_valid = models.BooleanField(default=True)
@@ -64,4 +64,4 @@ class Address(models.Model):
 
 # Credentials
 class Profile(models.Model):
-    customer = models.ForeignKey(Customer, related_name='customer_profile', on_delete=models.CASCADE)
+    customer = models.OneToOneField(Customer, related_name='customer_profile', on_delete=models.CASCADE)

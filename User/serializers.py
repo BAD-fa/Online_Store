@@ -9,7 +9,15 @@ class AddressSerializer(serializers.ModelSerializer):
             'province', 'city', 'address_detail', 'postal_code', 'receiver_name', 'customer', 'receiver_phone_number')
 
 
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = '__all__'
+
+
 class ProfileSerializer(serializers.ModelSerializer):
+    customer = CustomerSerializer(read_only=True, many=True)
+
     class Meta:
         model = Profile
-        fields = '__all__'
+        fields = ('customer',)

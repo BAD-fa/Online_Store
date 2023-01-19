@@ -12,5 +12,10 @@ class AdminCustomer(admin.ModelAdmin):
     list_filter = ('national_id',)
 
 
+class AdminProfile(admin.ModelAdmin):
+    list_display = ('customer',)
+
+
 admin.site.register(Address, AdminAddress)
+admin.site.register(Profile, AdminProfile)
 admin.site.register(Customer, AdminCustomer)

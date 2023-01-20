@@ -29,7 +29,7 @@ class SearchAPIview(GenericAPIView):
             result[f'{product}'] = {
                 'avatar': avatar,
                 'price': product.price,
-                'rate': 'None'
+                'rate': 'update rate'
             }
             # TODO Update 'Product rate'
 
@@ -66,13 +66,14 @@ class SubCategoryAPIView(GenericAPIView):
 
         result = {}
         for category in target_categories:
-            sub_categories = all_categories.filter(parent_category=category)
+            if not category.parent_category:
+                sub_categories = all_categories.filter(parent_category=category)
 
-            category_info = {}
-            for sub_cat in sub_categories:
-                category_info[f'{sub_cat.pk}'] = sub_cat.title
+                category_info = {}
+                for sub_cat in sub_categories:
+                    category_info[f'{sub_cat.pk}'] = sub_cat.title
 
-            result[f'{category}'] = category_info
+                result[f'{category}'] = category_info
 
         result['products'] = BASE_DIR + 'products/'
         return Response(result)
@@ -104,7 +105,7 @@ class ProductListAPIView(GenericAPIView):
             product_info[f'{product.name}'] = {
                 'avatar': avatar,
                 'price': product.price,
-                'rate': 'None'
+                'rate': 'update rate'
             }
             # TODO Update 'Product rate'
 
@@ -145,9 +146,11 @@ class ProductDetailAPIView(GenericAPIView):
             'comments': comments,
         }
         # TODO Add 'Comment' Related API
-        # TODO Add 'rate' Related API
         # TODO Add 'Add/Remove to cart' Related API
         # TODO Add 'Add/Remove to wishlist' Related API
+
+        # TODO Check if user buy this product or not
+        result['rate'] = BASE_DIR + f'ratings/{product.id}/'
 
         return Response(result)
 
@@ -156,12 +159,10 @@ class HomePage(GenericAPIView):
     @staticmethod
     def get(request):
         result = {
+            'profile': BASE_DIR + 'profile/',
             'search': BASE_DIR + 'search/',
             'categories': BASE_DIR + 'categories/'
         }
-        # TODO Add 'Profile' Related API
         # TODO Add 'LOGIN/Register - Logout' Related API
-        # TODO Add 'Category List' Related API
         # TODO Add 'Top Rated Products(10)'
-        # TODO Add 'Search' Related API
         return Response(result)

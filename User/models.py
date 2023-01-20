@@ -55,7 +55,7 @@ class Address(models.Model):
     city = models.CharField(max_length=20)
     address_detail = models.TextField()
     postal_code = models.CharField(max_length=10)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='customer_addresses')
     receiver_name = models.CharField(max_length=31, null=True)
     receiver_phone_number = models.CharField(max_length=16, null=True)
     created_time = models.DateTimeField(auto_now_add=True)

@@ -15,9 +15,11 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProfileSerializer(serializers.ModelSerializer):
-    customer = CustomerSerializer(read_only=True, many=True)
+class ProfileSerializer(serializers.HyperlinkedModelSerializer):
+    # customer = CustomerSerializer(read_only=True, many=True)
+    address = serializers.HyperlinkedRelatedField(view_name='user_addresses', many=True, read_only=True)
 
     class Meta:
         model = Profile
-        fields = ('customer',)
+        fields = '__all__'
+        extra_fields = ('address', 'information', 'wish_list', 'order_history')

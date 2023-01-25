@@ -30,6 +30,15 @@ class Comment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
                              related_name="comments")  # TODO rename related name
 
+    is_valid = models.BooleanField(default=False)
+
+    def clean(self):
+        user_purchased = None  # TODO get user's purchased products in this field
+        if self.product in user_purchased:
+            self.is_valid = True
+        else:
+            self.is_valid = False
+
 
 # Cart and Cart Item fields must be similar to Order and Order item
 class Cart(models.Model):

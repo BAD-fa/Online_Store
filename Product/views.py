@@ -145,12 +145,19 @@ class ProductDetailAPIView(GenericAPIView):
             'rate': 'Add',
             'comments': comments,
         }
-        # TODO Add 'Comment' Related API
-        # TODO Add 'Add/Remove to cart' Related API
-        # TODO Add 'Add/Remove to wishlist' Related API
 
         # TODO Check if user buy this product or not
         result['rate'] = BASE_DIR + f'ratings/{product.id}/'
+        # TODO Add 'Comment' Related API
+        result['comment'] = BASE_DIR + f'???'
+
+        # TODO Add 'Add/Remove to cart' Related API
+        result['add to cart'] = BASE_DIR + f'???'
+        result['remove from cart'] = BASE_DIR + f'???'
+
+        # TODO Add 'Add/Remove to wishlist' Related API
+        result['add to wishlist'] = BASE_DIR + f'???'
+        result['remove from wishlist'] = BASE_DIR + f'???'
 
         return Response(result)
 
@@ -161,8 +168,12 @@ class HomePage(GenericAPIView):
         result = {
             'profile': BASE_DIR + 'profile/',
             'search': BASE_DIR + 'search/',
-            'categories': BASE_DIR + 'categories/'
+            'categories': BASE_DIR + 'categories/',
+
+            # TODO Add 'LOGIN/Register - Logout' Related API
+            'loging': BASE_DIR + f'???',
+            'register': BASE_DIR + f'???',
+            'logout': BASE_DIR + f'???'
         }
-        # TODO Add 'LOGIN/Register - Logout' Related API
-        # TODO Add 'Top Rated Products(10)'
+
         return Response(result)

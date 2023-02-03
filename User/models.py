@@ -34,7 +34,7 @@ class UserMangerCustom(UserManager):
 class User(AbstractUser):
     email = models.EmailField(unique=True, null=True)
     phone_number = models.CharField(max_length=11, null=True, unique=True)
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
 
     # TODO Implement Manager
@@ -42,20 +42,27 @@ class User(AbstractUser):
 
 
 class Customer(User):
-    pass
+    national_id = models.PositiveBigIntegerField(max_length=10, null=True)
+    birthday = models.DateField(null=True, blank=True)
 
 
 class Manager(User):
     pass
 
 
+class Address(models.Model):
+    province = models.CharField(max_length=20)
+    city = models.CharField(max_length=20)
+    address_detail = models.TextField()
+    postal_code = models.CharField(max_length=10)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='customer_addresses')
+    receiver_name = models.CharField(max_length=31, null=True)
+    receiver_phone_number = models.CharField(max_length=16, null=True)
+    created_time = models.DateTimeField(auto_now_add=True)
+    modified_time = models.DateTimeField(auto_now=True)
+    is_valid = models.BooleanField(default=True)
+
+
 # Credentials
 class Profile(models.Model):
-    pass
-
-
-class Address(models.Model):
-    address = models.TextField()
-    postal_code = models.CharField(max_length=10)
-    geographical_location = models.CharField(max_length=50)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.OneToOneField(Customer, related_name='customer_profile', on_delete=models.CASCADE)
